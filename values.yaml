@@ -1,0 +1,79 @@
+global:
+  acme:
+    domain: steadops.local.steadforce.com
+  istio:
+    ingressGateway:
+      namespace: istio-ingress  
+
+dockerConfigSecretName: ghcr-secret
+
+
+forecastle:
+  group: steadforce-applications
+  iconBackendUrl: "https://upload.wikimedia.org/wikipedia/commons/7/7d/Microsoft_.NET_logo.svg"
+  iconFrontendUrl: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Angular_full_color_logo.svg"
+
+backend:
+  nameOverride: backend-security-issues
+  fullnameOverride: backend-security-issues
+  subDomain: backend-security-issues
+  image:
+    registry: ghcr.io
+    repository: steadforce/apps/dotnet-backend-with-security-issues
+    tag: sha-ae7335c
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  service:
+    type: ClusterIP
+    port: 3004
+    targetPort: 3004
+    postgres:    
+      host: security-issues-db.security-issues.svc.cluster.local
+      port: "5433"
+      database: security-issues-db
+      
+           
+frontend:
+  nameOverride: frontend-security-issues
+  fullnameOverride: frontend-security-issues
+  subDomain: frontend-security-issues
+  image:
+    registry: ghcr.io
+    repository: steadforce/apps/react-frontend-with-security-issues
+    tag: sha-6bf6154
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  service:
+    type: ClusterIP
+    port: 3002
+    targetPort: 3002
+  replicas: 1
+  extraEnvVars:
+     - name: REACT_APP_BACKEND_URL
+       value: https://{{ .Values.backend.subDomain }}.{{ .Values.global.acme.domain }}
+servicemonitor:
+  enabled: true
+  interval: 15s
+  labels:
+    prometheus: cluster-monitoring
+  scrapeTimeout: 5s
+
+postgres:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      cpu: 10m
+      memory: 100Mi
+postgresInstances: 1

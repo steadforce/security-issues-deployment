@@ -1,0 +1,97 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - image: {{ .Values.backend.image.registry }}/{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}
+        imagePullPolicy: IfNotPresent
+        name: backend-security-issues
+        ports:
+        - containerPort: 3004
+          protocol: TCP
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        terminationMessagePath: /dev/termination-log
+        env:
+          - name: PSQL_DB_HOSTNAME
+            value: {{ .Values.backend.service.postgres.host }}
+          - name: PSQL_DB_PORT
+            value: "{{ .Values.backend.service.postgres.port }}"
+          - name: PSQL_DB_DATABASE
+            value: {{ .Values.backend.service.postgres.database }}
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                key: username
+                name: security-issues.security-issues-db.credentials.postgresql.acid.zalan.do
+          - name: PSQL_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: security-issues.security-issues-db.credentials.postgresql.acid.zalan.do
+        readinessProbe:
+            httpGet:
+              path: /
+              port: 3004
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+        livenessProbe:
+            httpGet:
+              path: /
+              port: 3004
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+
+      - image: {{ .Values.frontend.image.registry }}/{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}
+        imagePullPolicy: IfNotPresent
+        name: frontend-security-issues
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        terminationMessagePath: /dev/termination-log        
+        readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+        livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      

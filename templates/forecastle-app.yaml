@@ -1,0 +1,20 @@
+apiVersion: forecastle.stakater.com/v1alpha1
+kind: ForecastleApp
+metadata:
+  name: {{ .Values.backend.subDomain }}
+spec:
+  name: {{ .Values.backend.subDomain }}
+  group: {{ .Values.forecastle.group }}
+  icon: {{ .Values.forecastle.iconBackendUrl }}
+  url: https://{{ .Values.backend.subDomain }}.{{ .Values.global.acme.domain }}
+
+---
+apiVersion: forecastle.stakater.com/v1alpha1
+kind: ForecastleApp
+metadata:
+  name: {{ .Values.frontend.subDomain }}
+spec:
+  name: {{ .Values.frontend.subDomain }}
+  group: {{ .Values.forecastle.group }}
+  icon: {{ .Values.forecastle.iconFrontendUrl }}
+  url: https://{{ .Values.frontend.subDomain }}.{{ .Values.global.acme.domain }}

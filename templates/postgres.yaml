@@ -1,0 +1,22 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: security-issues-db
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  teamId: security-issues
+  volume:
+    size: 2Gi
+    storageClass: nfs1
+  numberOfInstances: {{ .Values.postgresInstances }}
+  users:
+    security-issues:  # database owner
+    - superuser
+    - createdb
+  # databases:
+  postgresql:
+    version: "15"
+  {{- if .Values.postgres -}}
+  {{ toYaml .Values.postgres | nindent 2 }}
+  {{- end -}}

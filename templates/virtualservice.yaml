@@ -1,0 +1,45 @@
+{{- if .Capabilities.APIVersions.Has "networking.istio.io/v1beta1" }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.backend.subDomain }}-acme
+spec:
+  gateways:
+  - {{ .Values.global.istio.ingressGateway.namespace }}/backend-security-issues-acme-gateway
+  hosts:
+  - {{ .Values.backend.subDomain }}.{{ .Values.global.acme.domain }}
+  http:
+  - headers:
+      response:
+        set:
+          strict-transport-security: max-age=15724800
+    route:
+    - destination:
+        host: {{ .Values.backend.subDomain }}
+        port:
+          number: 3004
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.frontend.subDomain }}-acme
+spec:
+  gateways:
+  - {{ .Values.global.istio.ingressGateway.namespace }}/frontend-security-issues-acme-gateway
+  hosts:
+  - {{ .Values.frontend.subDomain }}.{{ .Values.global.acme.domain }}
+  http:
+  - headers:
+      response:
+        set:
+          strict-transport-security: max-age=15724800
+    route:
+    - destination:
+        host: {{ .Values.frontend.subDomain }}
+        port:
+          number: 3000
+
+
+{{- end }}

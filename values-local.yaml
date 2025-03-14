@@ -1,0 +1,12 @@
+backend:
+  resources:
+    requests:
+      cpu: 1m
+      memory: 20Mi
+frontend:
+  resources:
+    requests:
+      cpu: 1m
+      memory: 20Mi
+
+
