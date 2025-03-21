@@ -34,7 +34,7 @@ backend:
     targetPort: 3004
     postgres:    
       host: security-issues-db.security-issues.svc.cluster.local
-      port: "5433"
+      port: "5432"
       database: security-issues-db
       
            
