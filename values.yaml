@@ -60,7 +60,7 @@ frontend:
   replicas: 1
   extraEnvVars:
      - name: REACT_APP_BACKEND_URL
-       value: https://{{ .Values.backend.subDomain }}.{{ .Values.global.acme.domain }}
+       value: https://backend-security-issues.steadops.local.steadforce.com
 servicemonitor:
   enabled: true
   interval: 15s
