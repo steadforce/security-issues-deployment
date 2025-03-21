@@ -20,7 +20,7 @@ backend:
   image:
     registry: ghcr.io
     repository: steadforce/apps/dotnet-backend-with-security-issues
-    tag: sha-ae7335c
+    tag: sha-4d38c7e
   resources:
     limits:
       cpu: 1000m
